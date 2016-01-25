@@ -1,0 +1,13 @@
+name = tpk_highlighted
+description = Views "images highlighted"
+core = 7.x
+package = Features Triptyk
+version = 7.x-1.0-beta1
+dependencies[] = fe_block
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[fe_block_settings][] = views-highlighted-block_highlighted
+features[features_api][] = api:2
+features[views_view][] = highlighted
+features_exclude[dependencies][ctools] = ctools
+project path = sites/all/modules/features_triptyk

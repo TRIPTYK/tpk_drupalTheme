@@ -1,0 +1,25 @@
+db:
+  image: tutum/mariadb
+  ports:
+    - "3306:3306"
+  environment:
+    - MARIADB_PASS=triptyk
+web:
+  image: triptyk/nginx
+  ports:
+    - "80:80"
+  volumes:
+    - ./environment/nginx/sites-available:/etc/nginx/sites-enabled/
+    - ./www:/var/www
+    - ./logs:/var/log/nginx
+  links:
+    - php
+php:
+  image: triptyk/php
+  volumes:
+    - ./environment/php/fpm-pool/:/etc/php5/fpm/pool.d/
+    - ./www:/var/www
+  ports:
+    - "9000:9000"
+  links:
+    - db

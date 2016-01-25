@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the tpk_highlighted feature.
+ */
+
+include_once 'tpk_highlighted.features.inc';

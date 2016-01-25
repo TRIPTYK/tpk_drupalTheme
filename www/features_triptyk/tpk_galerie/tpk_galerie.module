@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the tpk_galerie feature.
+ */
+
+include_once 'tpk_galerie.features.inc';

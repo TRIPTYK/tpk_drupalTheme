@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the tpk_news feature.
+ */
+
+include_once 'tpk_news.features.inc';

@@ -1,0 +1,53 @@
+; drupal_theme make file for d.o. usage
+core = 7.x
+api = 2
+
+; Drupal Version
+projects[drupal][version] = "7.41"
+; include the d.o. profile base
+includes[] = "drupal-org.make"
+
+; +++++ TODO modules without versions +++++
+
+projects[drupal_theme_views][version] = "" ; TODO add version
+projects[drupal_theme_views][subdir] = "custom"
+
+projects[drupal_theme_fields][version] = "" ; TODO add version
+projects[drupal_theme_fields][subdir] = "custom"
+
+projects[drupal_theme_media][version] = "" ; TODO add version
+projects[drupal_theme_media][subdir] = "custom"
+
+projects[drupal_theme_menu][version] = "" ; TODO add version
+projects[drupal_theme_menu][subdir] = "custom"
+
+projects[drupal_theme_seo][version] = "" ; TODO add version
+projects[drupal_theme_seo][subdir] = "custom"
+
+projects[drupal_theme_site][version] = "" ; TODO add version
+projects[drupal_theme_site][subdir] = "custom"
+
+projects[drupal_theme_taxonomy][version] = "" ; TODO add version
+projects[drupal_theme_taxonomy][subdir] = "custom"
+
+projects[drupal_theme_users][version] = "" ; TODO add version
+projects[drupal_theme_users][subdir] = "custom"
+
+projects[drupal_theme_node_article][version] = "" ; TODO add version
+projects[drupal_theme_node_article][subdir] = "custom"
+
+projects[drupal_theme_node_page][version] = "" ; TODO add version
+projects[drupal_theme_node_page][subdir] = "custom"
+
+projects[drupal_theme_node_webform][version] = "" ; TODO add version
+projects[drupal_theme_node_webform][subdir] = "custom"
+
+; +++++ Libraries +++++
+
+; jquery.cycle
+libraries[jquery.cycle][directory_name] = "jquery.cycle"
+libraries[jquery.cycle][type] = "library"
+libraries[jquery.cycle][destination] = "libraries"
+libraries[jquery.cycle][download][type] = "get"
+libraries[jquery.cycle][download][url] = "" ; TODO add download URI
+
