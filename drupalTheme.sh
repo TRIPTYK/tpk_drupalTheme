@@ -12,7 +12,7 @@ if [ ! -d "default" ]; then
 
 	cd default/
 
-	drush si -y -d triptyk --db-url=mysql://admin:triptyk@$(docker-machine ip dockerdrupal):3306/triptykDb --db-su=admin --db-su-pw=triptyk --account-name=admin --account-pass=Y0sh1W11 --site-name="standard" ;
+	drush si -d triptyk --db-url=mysql://admin:triptyk@$(docker-machine ip dockerdrupal):3306/triptykDb --db-su=admin --db-su-pw=triptyk --account-name=admin --account-pass=Y0sh1W11 --site-name="standard" ;
 
 	drush en entity -y
 	drush en entityreference -y
@@ -39,10 +39,10 @@ if [ ! -d "default" ]; then
 		git init
 		git add . --a
 		git commit -m "first commit"
-		git remote add origin https://github.com/$user/$url.git
+		git remote add origin https://github.com/maxgosset/$url.git
 		git push -u origin master
 	fi
 
 else 
-		echo "le dossier default existe";
+		echo "le dossier default existe , veuillez vérifier son contenu";
 fi

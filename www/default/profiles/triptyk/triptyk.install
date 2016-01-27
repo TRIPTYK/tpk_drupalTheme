@@ -1,0 +1,264 @@
+<?php
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ */
+function triptyk_install() {
+  // Enable some triptyk blocks.
+  $default_theme = 'bartik';
+  $admin_theme = 'seven';
+  // disable all themes
+  db_update('system')
+    ->fields(array('status' => 0))
+    ->condition('type', 'theme')
+    ->execute();
+  // enable $default_theme
+  db_update('system')
+    ->fields(array('status' => 1))
+    ->condition('type', 'theme')
+    ->condition('name', $default_theme)
+    ->execute();
+  // enable $admin_theme
+  db_update('system')
+    ->fields(array('status' => 1))
+    ->condition('type', 'theme')
+    ->condition('name', $admin_theme)
+    ->execute();
+  variable_set('theme_default', $default_theme);
+  variable_set('admin_theme', $admin_theme);
+  // activate admin theme when editing a node
+  variable_set('node_admin_theme', '1');
+  $blocks = array(
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'user',
+      'delta' => 'login',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'sidebar_first',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'help',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => -10,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'help',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'help',
+      'pages' => '',
+      'cache' => -1,
+    ),
+  );
+  // drop system / user blocks to ensure correct building
+  db_delete('block')->condition('module', 'system')->execute();
+  db_delete('block')->condition('module', 'user')->execute();
+  // add in our blocks defined above
+  $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
+  foreach ($blocks as $block) {
+    $query->values($block);
+  }
+  $query->execute();
+  
+  // From shortcut.install, add shortcuts to the default set on install
+  $shortcut_set = shortcut_set_load(SHORTCUT_DEFAULT_SET_NAME);
+  $shortcut_set->links = NULL;
+  $shortcut_set->links = array(
+    array(
+      'link_path' => 'admin/appearance/settings',
+      'link_title' => st('Theme'),
+      'weight' => -17,
+    ),
+  );
+  shortcut_set_save($shortcut_set);// Create a default role for site administrators, with all available permissions assigned.
+  $admin_role = new stdClass();
+  $admin_role->name = 'administrator';
+  $admin_role->weight = 10;
+  user_role_save($admin_role);
+  user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
+  // Set this as the administrator role.
+  variable_set('user_admin_role', $admin_role->rid);
+
+  // Assign user 1 the "administrator" role.
+  db_insert('users_roles')
+    ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
+    ->execute();
+  // Update the menu router information.
+  menu_rebuild();
+  // revert features to ensure they are all installed
+  $features = array(
+    ''
+  );
+  features_revert($features);
+  // ignore any rebuild messages
+  node_access_needs_rebuild(FALSE);
+  // ignore any other install messages
+  drupal_get_messages();
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Automatically generated profiler builder queries to achieve this version.
+ */
+function triptyk_update_7101(&$sandbox) {
+  $query_args = array (
+  ':db_update_placeholder_0' => '',
+  ':db_condition_placeholder_0' => 'fr',
+);
+  db_query("UPDATE languages SET javascript=:db_update_placeholder_0
+WHERE  (language = :db_condition_placeholder_0) ", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'O:8:"stdClass":11:{s:8:"language";s:2:"fr";s:4:"name";s:6:"French";s:6:"native";s:9:"Français";s:9:"direction";s:1:"0";s:7:"enabled";s:1:"1";s:7:"plurals";s:1:"2";s:7:"formula";s:6:"($n>1)";s:6:"domain";s:0:"";s:6:"prefix";s:2:"fr";s:6:"weight";s:3:"-10";s:10:"javascript";s:0:"";}',
+  ':db_condition_placeholder_0' => 'language_default',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'a:24:{i:0;s:14:"misc/drupal.js";i:1;s:14:"misc/jquery.js";i:2;s:19:"misc/jquery.once.js";i:3;s:42:"sites/all/modules/lightbox2/js/lightbox.js";i:4;s:55:"sites/all/modules/admin_menu/admin_devel/admin_devel.js";i:5;s:57:"sites/all/modules/picture/picturefill2/picturefill.min.js";i:6;s:40:"sites/all/modules/picture/picture.min.js";i:7;s:41:"sites/all/modules/ctools/js/dropbutton.js";i:8;s:21:"misc/jquery.cookie.js";i:9;s:51:"sites/all/modules/module_filter/js/module_filter.js";i:10;s:21:"misc/jquery.ba-bbq.js";i:11;s:45:"sites/all/modules/module_filter/js/modules.js";i:12;s:55:"sites/all/modules/module_filter/js/module_filter_tab.js";i:13;s:54:"sites/all/modules/module_filter/js/dynamic_position.js";i:14;s:19:"misc/tableheader.js";i:15;s:42:"sites/all/modules/admin_menu/admin_menu.js";i:16;s:69:"sites/all/modules/admin_menu/admin_menu_toolbar/admin_menu_toolbar.js";s:10:"refresh:fr";s:7:"waiting";i:17;s:12:"misc/form.js";i:18;s:16:"misc/collapse.js";i:19;s:14:"misc/states.js";i:20;s:38:"sites/all/modules/features/features.js";i:21;s:21:"misc/vertical-tabs.js";i:22;s:57:"sites/all/modules/profiler_builder/js/profiler_builder.js";}',
+  ':db_condition_placeholder_0' => 'javascript_parsed',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => '',
+  ':db_condition_placeholder_0' => 'fr',
+);
+  db_query("UPDATE languages SET javascript=:db_update_placeholder_0
+WHERE  (language = :db_condition_placeholder_0) ", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'O:8:"stdClass":11:{s:8:"language";s:2:"fr";s:4:"name";s:6:"French";s:6:"native";s:9:"Français";s:9:"direction";s:1:"0";s:7:"enabled";s:1:"1";s:7:"plurals";s:1:"2";s:7:"formula";s:6:"($n>1)";s:6:"domain";s:0:"";s:6:"prefix";s:2:"fr";s:6:"weight";s:3:"-10";s:10:"javascript";s:0:"";}',
+  ':db_condition_placeholder_0' => 'language_default',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'a:24:{i:0;s:14:"misc/drupal.js";i:1;s:14:"misc/jquery.js";i:2;s:19:"misc/jquery.once.js";i:3;s:42:"sites/all/modules/lightbox2/js/lightbox.js";i:4;s:55:"sites/all/modules/admin_menu/admin_devel/admin_devel.js";i:5;s:57:"sites/all/modules/picture/picturefill2/picturefill.min.js";i:6;s:40:"sites/all/modules/picture/picture.min.js";i:7;s:41:"sites/all/modules/ctools/js/dropbutton.js";i:8;s:21:"misc/jquery.cookie.js";i:9;s:51:"sites/all/modules/module_filter/js/module_filter.js";i:10;s:21:"misc/jquery.ba-bbq.js";i:11;s:45:"sites/all/modules/module_filter/js/modules.js";i:12;s:55:"sites/all/modules/module_filter/js/module_filter_tab.js";i:13;s:54:"sites/all/modules/module_filter/js/dynamic_position.js";i:14;s:19:"misc/tableheader.js";i:15;s:42:"sites/all/modules/admin_menu/admin_menu.js";i:16;s:69:"sites/all/modules/admin_menu/admin_menu_toolbar/admin_menu_toolbar.js";s:10:"refresh:fr";s:7:"waiting";i:17;s:12:"misc/form.js";i:18;s:16:"misc/collapse.js";i:19;s:14:"misc/states.js";i:20;s:38:"sites/all/modules/features/features.js";i:21;s:21:"misc/vertical-tabs.js";i:22;s:57:"sites/all/modules/profiler_builder/js/profiler_builder.js";}',
+  ':db_condition_placeholder_0' => 'javascript_parsed',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => '',
+  ':db_condition_placeholder_0' => 'fr',
+);
+  db_query("UPDATE languages SET javascript=:db_update_placeholder_0
+WHERE  (language = :db_condition_placeholder_0) ", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'O:8:"stdClass":11:{s:8:"language";s:2:"fr";s:4:"name";s:6:"French";s:6:"native";s:9:"Français";s:9:"direction";s:1:"0";s:7:"enabled";s:1:"1";s:7:"plurals";s:1:"2";s:7:"formula";s:6:"($n>1)";s:6:"domain";s:0:"";s:6:"prefix";s:2:"fr";s:6:"weight";s:3:"-10";s:10:"javascript";s:0:"";}',
+  ':db_condition_placeholder_0' => 'language_default',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'a:24:{i:0;s:14:"misc/drupal.js";i:1;s:14:"misc/jquery.js";i:2;s:19:"misc/jquery.once.js";i:3;s:42:"sites/all/modules/lightbox2/js/lightbox.js";i:4;s:55:"sites/all/modules/admin_menu/admin_devel/admin_devel.js";i:5;s:57:"sites/all/modules/picture/picturefill2/picturefill.min.js";i:6;s:40:"sites/all/modules/picture/picture.min.js";i:7;s:41:"sites/all/modules/ctools/js/dropbutton.js";i:8;s:21:"misc/jquery.cookie.js";i:9;s:51:"sites/all/modules/module_filter/js/module_filter.js";i:10;s:21:"misc/jquery.ba-bbq.js";i:11;s:45:"sites/all/modules/module_filter/js/modules.js";i:12;s:55:"sites/all/modules/module_filter/js/module_filter_tab.js";i:13;s:54:"sites/all/modules/module_filter/js/dynamic_position.js";i:14;s:19:"misc/tableheader.js";i:15;s:42:"sites/all/modules/admin_menu/admin_menu.js";i:16;s:69:"sites/all/modules/admin_menu/admin_menu_toolbar/admin_menu_toolbar.js";s:10:"refresh:fr";s:7:"waiting";i:17;s:12:"misc/form.js";i:18;s:16:"misc/collapse.js";i:19;s:14:"misc/states.js";i:20;s:38:"sites/all/modules/features/features.js";i:21;s:21:"misc/vertical-tabs.js";i:22;s:57:"sites/all/modules/profiler_builder/js/profiler_builder.js";}',
+  ':db_condition_placeholder_0' => 'javascript_parsed',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => '',
+  ':db_condition_placeholder_0' => 'fr',
+);
+  db_query("UPDATE languages SET javascript=:db_update_placeholder_0
+WHERE  (language = :db_condition_placeholder_0) ", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'O:8:"stdClass":11:{s:8:"language";s:2:"fr";s:4:"name";s:6:"French";s:6:"native";s:9:"Français";s:9:"direction";s:1:"0";s:7:"enabled";s:1:"1";s:7:"plurals";s:1:"2";s:7:"formula";s:6:"($n>1)";s:6:"domain";s:0:"";s:6:"prefix";s:2:"fr";s:6:"weight";s:3:"-10";s:10:"javascript";s:0:"";}',
+  ':db_condition_placeholder_0' => 'language_default',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'a:24:{i:0;s:14:"misc/drupal.js";i:1;s:14:"misc/jquery.js";i:2;s:19:"misc/jquery.once.js";i:3;s:42:"sites/all/modules/lightbox2/js/lightbox.js";i:4;s:55:"sites/all/modules/admin_menu/admin_devel/admin_devel.js";i:5;s:57:"sites/all/modules/picture/picturefill2/picturefill.min.js";i:6;s:40:"sites/all/modules/picture/picture.min.js";i:7;s:41:"sites/all/modules/ctools/js/dropbutton.js";i:8;s:21:"misc/jquery.cookie.js";i:9;s:51:"sites/all/modules/module_filter/js/module_filter.js";i:10;s:21:"misc/jquery.ba-bbq.js";i:11;s:45:"sites/all/modules/module_filter/js/modules.js";i:12;s:55:"sites/all/modules/module_filter/js/module_filter_tab.js";i:13;s:54:"sites/all/modules/module_filter/js/dynamic_position.js";i:14;s:19:"misc/tableheader.js";i:15;s:42:"sites/all/modules/admin_menu/admin_menu.js";i:16;s:69:"sites/all/modules/admin_menu/admin_menu_toolbar/admin_menu_toolbar.js";s:10:"refresh:fr";s:7:"waiting";i:17;s:12:"misc/form.js";i:18;s:16:"misc/collapse.js";i:19;s:14:"misc/states.js";i:20;s:38:"sites/all/modules/features/features.js";i:21;s:21:"misc/vertical-tabs.js";i:22;s:57:"sites/all/modules/profiler_builder/js/profiler_builder.js";}',
+  ':db_condition_placeholder_0' => 'javascript_parsed',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => '',
+  ':db_condition_placeholder_0' => 'fr',
+);
+  db_query("UPDATE languages SET javascript=:db_update_placeholder_0
+WHERE  (language = :db_condition_placeholder_0) ", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'O:8:"stdClass":11:{s:8:"language";s:2:"fr";s:4:"name";s:6:"French";s:6:"native";s:9:"Français";s:9:"direction";s:1:"0";s:7:"enabled";s:1:"1";s:7:"plurals";s:1:"2";s:7:"formula";s:6:"($n>1)";s:6:"domain";s:0:"";s:6:"prefix";s:2:"fr";s:6:"weight";s:3:"-10";s:10:"javascript";s:0:"";}',
+  ':db_condition_placeholder_0' => 'language_default',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'a:24:{i:0;s:14:"misc/drupal.js";i:1;s:14:"misc/jquery.js";i:2;s:19:"misc/jquery.once.js";i:3;s:42:"sites/all/modules/lightbox2/js/lightbox.js";i:4;s:55:"sites/all/modules/admin_menu/admin_devel/admin_devel.js";i:5;s:57:"sites/all/modules/picture/picturefill2/picturefill.min.js";i:6;s:40:"sites/all/modules/picture/picture.min.js";i:7;s:41:"sites/all/modules/ctools/js/dropbutton.js";i:8;s:21:"misc/jquery.cookie.js";i:9;s:51:"sites/all/modules/module_filter/js/module_filter.js";i:10;s:21:"misc/jquery.ba-bbq.js";i:11;s:45:"sites/all/modules/module_filter/js/modules.js";i:12;s:55:"sites/all/modules/module_filter/js/module_filter_tab.js";i:13;s:54:"sites/all/modules/module_filter/js/dynamic_position.js";i:14;s:19:"misc/tableheader.js";i:15;s:42:"sites/all/modules/admin_menu/admin_menu.js";i:16;s:69:"sites/all/modules/admin_menu/admin_menu_toolbar/admin_menu_toolbar.js";s:10:"refresh:fr";s:7:"waiting";i:17;s:12:"misc/form.js";i:18;s:16:"misc/collapse.js";i:19;s:14:"misc/states.js";i:20;s:38:"sites/all/modules/features/features.js";i:21;s:21:"misc/vertical-tabs.js";i:22;s:57:"sites/all/modules/profiler_builder/js/profiler_builder.js";}',
+  ':db_condition_placeholder_0' => 'javascript_parsed',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => '',
+  ':db_condition_placeholder_0' => 'fr',
+);
+  db_query("UPDATE languages SET javascript=:db_update_placeholder_0
+WHERE  (language = :db_condition_placeholder_0) ", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'O:8:"stdClass":11:{s:8:"language";s:2:"fr";s:4:"name";s:6:"French";s:6:"native";s:9:"Français";s:9:"direction";s:1:"0";s:7:"enabled";s:1:"1";s:7:"plurals";s:1:"2";s:7:"formula";s:6:"($n>1)";s:6:"domain";s:0:"";s:6:"prefix";s:2:"fr";s:6:"weight";s:3:"-10";s:10:"javascript";s:0:"";}',
+  ':db_condition_placeholder_0' => 'language_default',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+  $query_args = array (
+  ':db_update_placeholder_0' => 'a:24:{i:0;s:14:"misc/drupal.js";i:1;s:14:"misc/jquery.js";i:2;s:19:"misc/jquery.once.js";i:3;s:42:"sites/all/modules/lightbox2/js/lightbox.js";i:4;s:55:"sites/all/modules/admin_menu/admin_devel/admin_devel.js";i:5;s:57:"sites/all/modules/picture/picturefill2/picturefill.min.js";i:6;s:40:"sites/all/modules/picture/picture.min.js";i:7;s:41:"sites/all/modules/ctools/js/dropbutton.js";i:8;s:21:"misc/jquery.cookie.js";i:9;s:51:"sites/all/modules/module_filter/js/module_filter.js";i:10;s:21:"misc/jquery.ba-bbq.js";i:11;s:45:"sites/all/modules/module_filter/js/modules.js";i:12;s:55:"sites/all/modules/module_filter/js/module_filter_tab.js";i:13;s:54:"sites/all/modules/module_filter/js/dynamic_position.js";i:14;s:19:"misc/tableheader.js";i:15;s:42:"sites/all/modules/admin_menu/admin_menu.js";i:16;s:69:"sites/all/modules/admin_menu/admin_menu_toolbar/admin_menu_toolbar.js";s:10:"refresh:fr";s:7:"waiting";i:17;s:12:"misc/form.js";i:18;s:16:"misc/collapse.js";i:19;s:14:"misc/states.js";i:20;s:38:"sites/all/modules/features/features.js";i:21;s:21:"misc/vertical-tabs.js";i:22;s:57:"sites/all/modules/profiler_builder/js/profiler_builder.js";}',
+  ':db_condition_placeholder_0' => 'javascript_parsed',
+);
+  db_query("UPDATE variable SET value=:db_update_placeholder_0
+WHERE ( (name = :db_condition_placeholder_0) )", $query_args);
+
+
+}
+
